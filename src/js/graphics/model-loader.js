@@ -180,8 +180,8 @@ const computeModelExtent = function (o) {
     const zMax = d3.max(transformedExtents, (d) => d.max[2]);
     const min = [xMin, yMin, zMin],
         max = [xMax, yMax, zMax];
-    const center = vec3.divScalar(vec3.add(min, max), 2); // center of AABB
-    const dia = vec3.length(vec3.subtract(max, min)); // Diagonal length of the AABB
+    const center = v3.divScalar(v3.add(min, max), 2); // center of AABB
+    const dia = v3.length(v3.subtract(max, min)); // Diagonal length of the AABB
     return {
         min,
         max,
@@ -274,4 +274,4 @@ const mat4 = function (){
     return M4;
 }();
 
-export {loadModelFromURL};
+export {loadModelFromURL, computeModelExtent};
