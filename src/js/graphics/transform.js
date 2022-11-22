@@ -27,6 +27,14 @@ const getModelMatrix = (model, position, rotation, scale, extents= null) => {
     return m4.multiply(m4.multiply(m4.multiply(m4.multiply(m4.multiply(S, R_z), R_y), R_x), T), cT);
 }
 
+const getFPSCameraMatrix = (coords, angle) => {
+    let t = m4.translate(m4.identity(), coords);
+    let rY = m4.rotationY(angle[1]);
+    let rX = m4.rotationX(angle[0]);
+    t = m4.multiply(m4.multiply(t, rY), rX);
+    return m4.inverse(t);
+}
+
 const getCameraMatrix = (coords, lookAt) => {
     return m4.inverse(m4.lookAt(coords, lookAt, [0, 1, 0]));
 }
@@ -52,5 +60,5 @@ const getVertexAttributes = (model) => model.map(d => {
 
 const getBufferInfoArray = (vertexAttributes) => vertexAttributes.map((d) => twgl.createBufferInfoFromArrays(gl, d))
 
-export {getModelMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray};
+export {getModelMatrix, getFPSCameraMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray};
 

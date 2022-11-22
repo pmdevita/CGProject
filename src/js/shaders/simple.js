@@ -38,7 +38,6 @@ const fragmentShader = `
     vec3 color = abs(N);
     outColor = vec4(color, 1);
   }
-
 `;
 
 export {vectorShader, fragmentShader};
