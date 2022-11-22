@@ -28,11 +28,11 @@ const getUniforms = (rotation) => {
 };
 
 let rotation = 20;
+let buffer = getBufferInfoArray(getVertexAttributes(kyogre));
 
 const animate = () => {
     gl.useProgram(program.program);
     twgl.setUniforms(program, getUniforms(rotation));
-    let buffer = getBufferInfoArray(getVertexAttributes(kyogre));
     buffer.forEach((b) => {
         twgl.setBuffersAndAttributes(gl, program, b);
         twgl.drawBufferInfo(gl, b, glDrawType);
