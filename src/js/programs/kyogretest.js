@@ -13,7 +13,7 @@ import {getFPSController} from "./fpsController.js";
 import {deg2rad} from "../utils.js";
 
 
-let kyogre = await loadModelFromURL("./obj/kyogre/kyogre.obj", "obj");
+let kyogre;
 let program = createShaderProgram([vectorShader, fragmentShader]);
 
 
@@ -23,7 +23,7 @@ const baseUniforms = {
 };
 const getUniforms = (cameraPosition, cameraRotation, rotation) => {
     return {
-        modelMatrix: getModelMatrix(kyogre, [0, 0, 0], [0, rotation, 0], 1/8),
+        modelMatrix: getModelMatrix(kyogre, [0, 0, 0], [0, rotation, 0], 1 / 8),
         projectionMatrix: baseUniforms.projectionMatrix,
         cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation)
     };
@@ -32,7 +32,12 @@ const getUniforms = (cameraPosition, cameraRotation, rotation) => {
 const {getPosition, getRotation} = getFPSController([0, 15, 60]);
 
 let rotation = 20;
-let buffer = getBufferInfoArray(getVertexAttributes(kyogre));
+let buffer;
+
+const setup = async () => {
+    kyogre = await loadModelFromURL("./obj/kyogre/kyogre.obj", "obj");
+    buffer = getBufferInfoArray(getVertexAttributes(kyogre));
+}
 
 const animate = () => {
     gl.useProgram(program.program);
@@ -47,4 +52,4 @@ const animate = () => {
     }
 };
 
-export {animate};
+export {setup, animate};
