@@ -4,6 +4,7 @@ import {clearFrame, initGraphics} from "./graphics/basic.js";
 import {animate} from "./programs/kyogretest.js";
 
 initGraphics(gl);
+console.log("Initialized GL")
 
 function animationLoop() {
     clearFrame(gl);
@@ -11,3 +12,4 @@ function animationLoop() {
     requestAnimationFrame(animationLoop);
 }
 animationLoop();
+console.log("Started animation loop")
