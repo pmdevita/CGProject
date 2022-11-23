@@ -1,4 +1,4 @@
-import {GitHubPages} from "./config";
+import {GitHubPages} from "./config.js";
 
 const deg2rad = (deg) => {return deg / 180.0 * Math.PI}
 
