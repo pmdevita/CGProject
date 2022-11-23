@@ -11,6 +11,7 @@ import {
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
 import {deg2rad, gitLFS} from "../utils.js";
+import {backfaceCulling} from "../graphics/glOptions.js";
 
 
 let kyogre;
@@ -35,6 +36,7 @@ let rotation = 20;
 let buffer;
 
 const setup = async () => {
+    backfaceCulling();
     kyogre = await loadModelFromURL(gitLFS("./obj/kyogre/kyogre.obj"), "obj");
     buffer = getBufferInfoArray(getVertexAttributes(kyogre));
 }

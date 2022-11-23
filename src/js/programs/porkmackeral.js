@@ -11,6 +11,7 @@ import {
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
 import {deg2rad} from "../utils.js";
+import {backfaceCulling} from "../graphics/glOptions.js";
 
 
 let kyogre = await loadModelFromURL("./obj/Port Mackerel/portmackeral.obj", "obj");
@@ -42,4 +43,8 @@ const animate = () => {
     })
 };
 
-export {animate};
+const setup = async () => {
+    backfaceCulling();
+}
+
+export {setup, animate};

@@ -75,7 +75,6 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0]) => {
         }
         let xVelo = (moveX * Math.cos(deg2rad(look[1]))) + (moveZ * Math.sin(deg2rad(look[1])));
         let zVelo = (moveX * Math.sin(deg2rad(-look[1]))) + (moveZ * Math.cos(deg2rad(look[1])));
-        console.log(xVelo, zVelo);
         pos[0] = pos[0] + xVelo;
         pos[2] = pos[2] + zVelo;
         if (keysRegistered) {
