@@ -10,7 +10,7 @@ const hex2rgb = (hex) =>
 // Remove the first part which is an empty string, and the second which is
 // the project name
 let currentPath;
-if (!window.location.host.endsWith("github.io")) {
+if (window.location.host.endsWith("github.io")) {
     currentPath = window.location.pathname.split("/").slice(2, -1);
 }
 
