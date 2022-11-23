@@ -43,7 +43,6 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0]) => {
         }
         currentKeys[event.key] = true;
         if (keysRegistered === null) {
-            console.log("register")
             keysRegistered = setTimeout(processKeys, keysDelay);
         }
     };
@@ -85,7 +84,6 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0]) => {
     document.addEventListener("keyup", (event) => {
         delete currentKeys[event.key];
         if (Object.keys(currentKeys).length === 0) {
-            console.log("unregister")
             clearTimeout(keysRegistered);
             keysRegistered = null;
         }
