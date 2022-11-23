@@ -7,7 +7,9 @@ const hex2rgb = (hex) =>
         .match(new RegExp("(.{" + hex.length / 3 + "})", "g"))
         .map((l) => parseInt(hex.length % 2 ? l + l : l, 16) / 255)
 
-let currentPath = window.location.pathname.split("/").slice(1, -1);
+// Remove the first part which is an empty string, and the second which is
+// the project name
+let currentPath = window.location.pathname.split("/").slice(2, -1);
 const gitLFS = (path) => {
     if (!window.location.host.endsWith("github.io")) {
         return path;

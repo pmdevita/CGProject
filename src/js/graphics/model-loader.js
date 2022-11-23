@@ -6,10 +6,10 @@ const ModelSupported = {
     "obj": THREE.OBJLoader
 }
 
-const loadObject = (url, loader, mtls) =>
-    new Promise((resolve, reject) => {
+const loadObject = (url, loader, mtls) => {
+    return new Promise((resolve, reject) => {
         // instantiate a loader
-        if (mtls)loader.setMaterials(mtls);
+        if (mtls) loader.setMaterials(mtls);
         loader.load(
             // resource URL
             url,
@@ -27,6 +27,7 @@ const loadObject = (url, loader, mtls) =>
             }
         );
     })
+}
 
 
 const loadModelFromURL = async (url, modelFormat) => {
