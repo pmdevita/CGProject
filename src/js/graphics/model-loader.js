@@ -154,7 +154,15 @@ const createSC = (attributes, offset) => {
     };
 }
 
+
+let extentCache = {};
+
 const computeModelExtent = function (o) {
+    if (o in extentCache) {
+        return extentCache[o];
+    }
+
+
     const extents = o.map((d) => {
         const xExtent = d3.extent(d.sc.positions.filter((_, i) => i % 3 === 0));
         const yExtent = d3.extent(d.sc.positions.filter((_, i) => i % 3 === 1));
@@ -183,12 +191,14 @@ const computeModelExtent = function (o) {
         max = [xMax, yMax, zMax];
     const center = v3.divScalar(v3.add(min, max), 2); // center of AABB
     const dia = v3.length(v3.subtract(max, min)); // Diagonal length of the AABB
-    return {
+    const finalExtents = {
         min,
         max,
         center,
         dia
     };
+    extentCache[o] = finalExtents;
+    return finalExtents;
 }
 
 const mat4 = function (){
