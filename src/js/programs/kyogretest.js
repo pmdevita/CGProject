@@ -10,7 +10,7 @@ import {
 } from "../graphics/transform.js";
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
-import {deg2rad} from "../utils.js";
+import {deg2rad, gitLFS} from "../utils.js";
 
 
 let kyogre;
@@ -35,7 +35,7 @@ let rotation = 20;
 let buffer;
 
 const setup = async () => {
-    kyogre = await loadModelFromURL("./obj/kyogre/kyogre.obj", "obj");
+    kyogre = await loadModelFromURL(gitLFS("./obj/kyogre/kyogre.obj"), "obj");
     buffer = getBufferInfoArray(getVertexAttributes(kyogre));
 }
 
