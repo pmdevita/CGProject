@@ -1,4 +1,10 @@
 const bgColor = "4682b4";
 const glDrawType = gl.TRIANGLES;
 
-export {bgColor, glDrawType};
+const GitHubPages = {
+    username: "pmdevita",
+    project: "CGProject",
+    branch: "master"
+}
+
+export {bgColor, glDrawType, GitHubPages};
