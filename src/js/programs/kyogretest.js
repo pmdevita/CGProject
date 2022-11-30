@@ -10,25 +10,44 @@ import {
 } from "../graphics/transform.js";
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
-import {deg2rad, gitLFS} from "../utils.js";
 import {backfaceCulling} from "../graphics/glOptions.js";
+import {getTexture} from "../graphics/textures.js";
+import {fragmentShader as textureFragShader} from "../shaders/texture.js";
 
 
 let kyogre;
-let program = createShaderProgram([vectorShader, fragmentShader]);
+let program = createShaderProgram([vectorShader, textureFragShader]);
 
+let textureURLs = [
+    "./obj/kyogre/pm0382_00_00_BodyA_col.png",
+    "./obj/kyogre/pm0382_00_00_BodyA_col.png",
+    "./obj/kyogre/pm0382_00_00_BodyC_col.png",
+    "./obj/kyogre/pm0382_00_00_BodyB_col.png",
+    "./obj/kyogre/pm0382_00_00_Eye_col.png",
+    "./obj/kyogre/pm0382_00_00_BodyC_col.png",
+    "./obj/kyogre/pm0382_00_00_BodyC_col.png"
+];
+let textures;
 
 const baseUniforms = {
     projectionMatrix: getProjectionMatrix(40, 1.5, 100),
-    cameraMatrix: getCameraMatrix([30, 20, 30], [0, 0, 0])
+    cameraMatrix: getCameraMatrix([30, 20, 30], [0, 0, 0]),
 };
-const getUniforms = (cameraPosition, cameraRotation, rotation) => {
-    return {
+
+const getSceneUniforms = (cameraPosition, cameraRotation, rotation) => {
+    const uniforms = {
         modelMatrix: getModelMatrix(kyogre, [0, 0, 0], [0, rotation, 0], 1 / 8),
         projectionMatrix: baseUniforms.projectionMatrix,
         cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation)
     };
-};
+    return (texture) => {
+        return {
+            ...uniforms,
+            tex: texture
+        };
+    };
+}
+
 
 const {getPosition, getRotation} = getFPSController([0, 15, 60]);
 
@@ -37,14 +56,18 @@ let buffer;
 
 const setup = async () => {
     backfaceCulling();
-    kyogre = await loadModelFromURL(gitLFS("./obj/kyogre/kyogre.obj"), "obj");
-    buffer = getBufferInfoArray(getVertexAttributes(kyogre));
+    textures = textureURLs.map(url => {
+        return getTexture(url)
+    });
+    kyogre = await loadModelFromURL("./obj/kyogre/kyogre.obj", "obj");
+    buffer = getBufferInfoArray(getVertexAttributes(kyogre), textures);
 }
 
 const animate = () => {
     gl.useProgram(program.program);
-    twgl.setUniforms(program, getUniforms(getPosition(), getRotation(), rotation));
-    buffer.forEach((b) => {
+    let getUniforms = getSceneUniforms(getPosition(), getRotation(), rotation);
+    buffer.forEach((b, i) => {
+        twgl.setUniforms(program, getUniforms(b.texture));
         twgl.setBuffersAndAttributes(gl, program, b);
         twgl.drawBufferInfo(gl, b, glDrawType);
     })
