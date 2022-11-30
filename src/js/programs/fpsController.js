@@ -1,6 +1,6 @@
 import {deg2rad} from "../utils.js";
 
-const getFPSController = (position = [0, 0, 0], look = [0, 0, 0]) => {
+const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1) => {
     let pos = position;
     // let look = [0, 0, 0];
 
@@ -53,22 +53,22 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0]) => {
         for (let key of Object.keys(currentKeys)) {
             switch (key) {
                 case "w":
-                    moveZ -= 1;
+                    moveZ -= speed;
                     break;
                 case "a":
-                    moveX -= 1;
+                    moveX -= speed;
                     break;
                 case "d":
-                    moveX += 1;
+                    moveX += speed;
                     break;
                 case "s":
-                    moveZ += 1;
+                    moveZ += speed;
                     break;
                 case "Shift":
-                    pos[1] = pos[1] - 1;
+                    pos[1] = pos[1] - speed;
                     break;
                 case " ":
-                    pos[1] = pos[1] + 1;
+                    pos[1] = pos[1] + speed;
                     break;
             }
         }
@@ -97,7 +97,7 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0]) => {
         return look.map(d => deg2rad(d));
     }
 
-    return {getPosition: getPosition, getRotation: getRotation};
+    return {getPosition, getRotation};
 }
 
 
