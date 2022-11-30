@@ -50,7 +50,7 @@ const animate = () => {
 };
 
 const setup = async () => {
-    model = await loadModelFromURL("./gltf/portmackerel.gltf");
+    model = await loadModelFromURL("./gltf/portmackerel.glb");
     buffer = getBufferInfoArray(getVertexAttributes(model));
     backfaceCulling();
 }
