@@ -15,7 +15,36 @@ const getTexture = (url) => {
     tex.url = url;
     textureCache[url] = tex;
     return tex
-
 }
 
-export {getTexture}
+const GLTFMinFilter = {
+    9728: gl.NEAREST,
+    9729: gl.LINEAR,
+    9984: gl.NEAREST_MIPMAP_NEAREST,
+    9985: gl.LINEAR_MIPMAP_NEAREST,
+    9986: gl.NEAREST_MIPMAP_LINEAR,
+    9987: gl.LINEAR_MIPMAP_LINEAR
+}
+
+const GLTFMagFilter = {
+    9728: gl.NEAREST,
+    9729: gl.LINEAR
+}
+
+const gltfTextureCache = {};
+
+const createTextureFromGLTF = (material) => {
+    if (material.uuid in gltfTextureCache) {
+        return gltfTextureCache[material.uuid];
+    }
+    let tex = twgl.createTexture(gl, {
+        src: material.map.source.data,
+        flipY: material.map.flipY,
+        min: GLTFMinFilter[material.map.minFilter],
+        max: GLTFMagFilter[material.map.magFilter]
+    });
+    gltfTextureCache[material.uuid] = tex;
+    return tex
+}
+
+export {getTexture, createTextureFromGLTF}
