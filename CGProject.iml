@@ -8,5 +8,6 @@
     <orderEntry type="library" name="twgl.js" level="application" />
     <orderEntry type="library" name="three" level="application" />
     <orderEntry type="library" name="d3" level="application" />
+    <orderEntry type="library" name="twgl.js" level="application" />
   </component>
 </module>
