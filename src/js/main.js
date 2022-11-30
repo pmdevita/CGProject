@@ -1,7 +1,7 @@
 import "./globals.js";
 import {clearFrame, initGraphics} from "./graphics/basic.js";
 // Import the graphics program here
-import {setup, animate} from "./programs/kyogretest.js";
+import {setup, animate} from "./programs/portmackerel.js";
 
 initGraphics(gl);
 console.log("Initialized GL")

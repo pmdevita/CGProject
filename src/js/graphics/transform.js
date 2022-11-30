@@ -42,23 +42,24 @@ const getCameraMatrix = (coords, lookAt) => {
 const getProjectionMatrix = (fov, near, far) => m4.perspective(deg2rad(fov), gl.canvas.width / gl.canvas.height, near, far);
 
 const getVertexAttributes = (model) => model.map(d => {
-    return {
-        position: {
-            numComponents: 3,
-            data: d.sc.positions
-        },
-        normal: {
-            numComponents: 3,
-            data: d.sc.normals
-        },
-        uv: {
-            numComponents: 2,
-            data: d.sc.uvs
+    let totalVertices = d.sc.position.length / 3;
+    let data = {};
+    for (let key in d.sc) {
+        data[key] = {
+            numComponents: d.sc[key].length / totalVertices,
+            data: d.sc[key]
         }
     }
+    return data;
 });
 
-const getBufferInfoArray = (vertexAttributes) => vertexAttributes.map((d) => twgl.createBufferInfoFromArrays(gl, d))
+const getBufferInfoArray = (vertexAttributes, textures) => vertexAttributes.map((d, i) => {
+    let obj = twgl.createBufferInfoFromArrays(gl, d);
+    if (textures) {
+        obj.texture = textures[i];
+    }
+    return obj
+});
 
 export {getModelMatrix, getFPSCameraMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray};
 
