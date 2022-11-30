@@ -3,6 +3,7 @@
 
 
 import {gitLFS} from "../utils.js";
+import {createTextureFromGLTF} from "./textures.js";
 
 const ModelSupported = {
     "obj": THREE.OBJLoader,
@@ -28,6 +29,7 @@ const loadObject = (url, loader, mtls) => {
             },
             // called when loading has errors
             function (error) {
+                console.log(error);
                 reject("Error in loading");
             }
         );
@@ -74,6 +76,10 @@ const createSCs = (obj) => {
             sc.sc = createSC(attributes);
             if (node.geometry.index) {
                 sc.sc.indices = node.geometry.index.array.slice();
+            }
+            if (node.material) {
+                sc.material = node.material;
+                sc.texture = createTextureFromGLTF(node.material);
             }
             scs.push(sc);
         }
