@@ -1,6 +1,6 @@
 import {deg2rad} from "../utils.js";
 
-const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1) => {
+const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1, sensitivity = 0.5) => {
     let pos = position;
     // let look = [0, 0, 0];
 
@@ -20,8 +20,8 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1) => 
     document.addEventListener('mozpointerlockchange', mouseLockChange, false);
 
     const mouseMove = (event) => {
-        look[0] = Math.max(Math.min(90, look[0] - event.movementY), -90);
-        look[1] = (look[1] - event.movementX) % 360;
+        look[0] = Math.max(Math.min(90, look[0] - event.movementY * sensitivity), -90);
+        look[1] = ((look[1] - event.movementX * sensitivity) + 360) % 360 ;
     }
 
     function mouseLockChange() {
