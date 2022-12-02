@@ -33,7 +33,7 @@ const fragmentShader = `
     vec3 ambientColor = ambient * texture;
     vec3 diffuse = texture * clamp(dot(L,N), 0.f,1.f) * .5f ;
     vec3 specular = specularColor * pow(clamp( dot(N,H), 0., 1.) , shininess); 
-    vec3 color color = (1.- K_s)*diffuse + K_s*specular + ambient;
+    vec3 color = (1.- K_s)*diffuse + K_s*specular + ambient;
     outColor = vec4(color, 1);
   }
 `;
