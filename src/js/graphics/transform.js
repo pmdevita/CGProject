@@ -28,11 +28,9 @@ const getModelMatrix = (model, position, rotation, scale, extents= null) => {
 }
 
 const getFPSCameraMatrix = (coords, angle) => {
-    let t = m4.translate(m4.identity(), coords);
-    let rY = m4.rotationY(angle[1]);
-    let rX = m4.rotationX(angle[0]);
-    t = m4.multiply(m4.multiply(t, rY), rX);
-    return m4.inverse(t);
+    let vec = rotationToVector(angle);
+    let pos = [coords[0] - vec[0], coords[1] - vec[1], coords[2] - vec[2]];
+    return getCameraMatrix(coords, pos)
 }
 
 const getCameraMatrix = (coords, lookAt) => {
@@ -60,6 +58,14 @@ const getBufferInfoArray = (vertexAttributes, textures) => vertexAttributes.map(
     }
     return obj
 });
+
+// convert rotation polar coordinates to cartesian
+const rotationToVector = (rotation) => {
+    let x = Math.sin(rotation[1]) * Math.cos(-rotation[0]);
+    let y = Math.cos(rotation[1]) * Math.cos(-rotation[0]);
+    let z = Math.sin(-rotation[0]);
+    return [x, z, y];
+}
 
 export {getModelMatrix, getFPSCameraMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray};
 
