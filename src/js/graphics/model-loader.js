@@ -77,7 +77,7 @@ const createSCs = (obj) => {
             if (node.geometry.index) {
                 sc.sc.indices = node.geometry.index.array.slice();
             }
-            if (node.material) {
+            if (node.material && node.material.map !== null) {
                 sc.material = node.material;
                 sc.texture = createTextureFromGLTF(node.material);
             }

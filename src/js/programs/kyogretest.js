@@ -56,9 +56,8 @@ let buffer;
 
 const setup = async () => {
     backfaceCulling();
-    textures = textureURLs.map(url => {
-        return getTexture(url)
-    });
+    textures = await Promise.all(textureURLs.map(getTexture));
+    console.log(textureURLs, textures);
     kyogre = await loadModelFromURL("./obj/kyogre/kyogre.obj", "obj");
     buffer = getBufferInfoArray(getVertexAttributes(kyogre), textures);
 }
