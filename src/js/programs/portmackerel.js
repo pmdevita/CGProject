@@ -20,7 +20,7 @@ let program = createShaderProgram([vectorShader, textureFragShader]);
 
 
 const baseUniforms = {
-    projectionMatrix: getProjectionMatrix(40, 1.5, 100),
+    projectionMatrix: getProjectionMatrix(50, 1, 100),
     cameraMatrix: getCameraMatrix([30, 20, 30], [0, 0, 0])
 };
 
