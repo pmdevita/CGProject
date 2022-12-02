@@ -11,7 +11,7 @@ import {
 } from "../graphics/transform.js";
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
-import {deg2rad} from "../utils.js";
+import {deg2rad, hex2rgb} from "../utils.js";
 import {backfaceCulling} from "../graphics/glOptions.js";
 
 
@@ -29,7 +29,12 @@ const getSceneUniforms = (cameraPosition, cameraRotation) => {
     let modelMatrix = getModelMatrix(model, [0, 0, 0], [0, 0, 0], 70 / extents.dia);
     const uniforms = {
         projectionMatrix: baseUniforms.projectionMatrix,
-        cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation)
+        cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation),
+        shininess: .1,
+        ambient: .5,
+        light: [1, 50, 2, 1],
+        K_s: .1,
+        cameraPosition: cameraPosition,
     };
     return (objectMatrix, texture) => {
         return {
