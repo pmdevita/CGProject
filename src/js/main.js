@@ -7,6 +7,10 @@ initGraphics(gl);
 console.log("Initialized GL")
 
 function animationLoop() {
+    if (gl.isContextLost()) {
+        console.log("Context lost, ending.");
+        return;
+    }
     clearFrame(gl);
     animate();
     requestAnimationFrame(animationLoop);
