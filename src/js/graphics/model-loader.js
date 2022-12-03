@@ -249,4 +249,15 @@ const mat4 = function (){
     return M4;
 }();
 
-export {loadModelFromURL, computeModelExtent};
+const getQuadBufferInfo = () => twgl.createBufferInfoFromArrays(gl, {
+    position: {
+        numComponents: 3,
+        data: [-1,-0.2, -1,  1,-0.2, -1,  1,-0.2, 1,  1,-0.2, 1,  -1,-0.2, 1,  -1,-0.2, -1 ]
+    },
+    normal: {
+        numComponents: 3,
+        data: [0,1, 0,  0,1, 0,  0,1, 0,  0,1, 0,  0,1, 0,  0,1, 0 ]
+    }
+});
+
+export {loadModelFromURL, computeModelExtent, getQuadBufferInfo};
