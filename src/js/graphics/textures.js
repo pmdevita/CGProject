@@ -22,13 +22,11 @@ const getTexture = async (url) => {
 
 const getCubeMapTexture = async (url) => {
     if (Array.isArray(url)) {
-        url = await Promise.all(url.map(d => URLToImage(gitLFS(d))));
+        url = await Promise.all(url.map(d => URLToImage(gitLFS(d), false)));
     }
-    console.log(url);
     return twgl.createTexture(gl, {
         target: gl.TEXTURE_CUBE_MAP,
-        src: gitLFS(url),
-        flipY: false,
+        src: url,
         min: gl.LINEAR_MIPMAP_NEAREST
     });
 }
