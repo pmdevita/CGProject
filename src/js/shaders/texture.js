@@ -1,3 +1,5 @@
+import {raycastFragmentFunctions} from "./raycast.js";
+
 const vertexShader = `
   #version 300 es
   precision mediump float;
@@ -32,6 +34,7 @@ const fragmentShader = `
   in vec3 fragNormal;
   in vec3 fragPosition;
   in vec2 fragUV;
+  in vec4 cameraSpacePosition;
   
   uniform sampler2D tex;
   uniform int id;
@@ -39,27 +42,38 @@ const fragmentShader = `
   uniform float shininess;
   uniform float ambient; 
   uniform vec3 cameraPosition;
-  uniform vec4 light;
+  uniform vec4 lightPosition;
+  
+  uniform vec3 cameraVector; // Needs to be normalized!
 
   out vec4 outColor;
+  
+  ${raycastFragmentFunctions}
 
   void main() {
     vec3 N = normalize(fragNormal);
     vec3 V  = normalize(cameraPosition - fragPosition);
     vec3 L;
-    if (light.w==0.0){
-      L = normalize(light.xyz);
+    if (lightPosition.w==0.0){
+      L = normalize(lightPosition.xyz);
     }
     else{
-      L = normalize(light.xyz-fragPosition);
+      L = normalize(lightPosition.xyz-fragPosition);
     }
     vec3 H = normalize(L + V);
-    vec3 specularColor = vec3(1);
+    vec3 specularColor = vec3(.95f, .95f, 1.f);
     vec3 texture = texture(tex, fragUV).xyz;
     vec3 ambientColor = ambient * texture;
-    vec3 diffuse = texture * clamp(dot(L,N), 0.f,1.f) * .5f ;
-    vec3 specular = specularColor * pow(clamp( dot(N,H), 0., 1.) , shininess); 
-    vec3 color = (1.- K_s)*diffuse + K_s*specular + ambient;
+    vec3 diffuse = texture * clamp(dot(L,N) * 2.f, 0.5f, 1.f);
+    vec3 specular = specularColor * pow(clamp( dot(N,H), 0.1f, 1.f) , shininess); 
+    vec3 color = (1.- K_s)*diffuse + K_s*specular; // + ambient;
+    
+    if (in_crosshairs() == 1) {
+      color = color;
+    } else {
+      color = vec3(.4f, .2f, .5f);  // kind of purple
+    }
+    
     outColor = vec4(color, 1);
   }
 `;

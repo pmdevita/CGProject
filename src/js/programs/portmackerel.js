@@ -1,29 +1,31 @@
 import {computeModelExtent, loadModelFromURL} from "../graphics/model-loader.js";
 import {createShaderProgram} from "../graphics/shaders.js";
-import {fragmentShader} from "../shaders/simple.js";
-import {fragmentShader as textureFragShader, vertexShader} from "../shaders/texture.js";
+import {fragmentShader as simpleFrag, vertexShader as simpleVert} from "../shaders/simple.js";
+import {fragmentShader as textureFragShader} from "../shaders/texture.js";
 import {fragmentShader as texcubeFragShader} from "../shaders/textureCubemap.js";
+import {vertexShader as rcvert, fragmentShader as rcfrag} from "../shaders/raycast.js"
 import {getSceneUniforms as getSkyboxSceneUniforms} from "../uniforms/skybox.js";
 import {
     getBufferInfoArray,
     getCameraMatrix, getFPSCameraMatrix,
     getModelMatrix,
     getProjectionMatrix,
-    getVertexAttributes
+    getVertexAttributes, rotationToVector
 } from "../graphics/transform.js";
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
 import {deg2rad, hex2rgb} from "../utils.js";
 import {backfaceCulling} from "../graphics/glOptions.js";
 import {getCubeMapTexture, getTexture} from "../graphics/textures.js";
-import {renderShadowMap} from "./shadowMap.js";
+import {createShadowMap} from "./shadowMap.js";
+
 
 
 let model;
 let skybox;
 let bulb;
-let program = createShaderProgram([vertexShader, textureFragShader]);
-let bulbProgram = createShaderProgram([vertexShader, fragmentShader]);
+let program = createShaderProgram([simpleVert, textureFragShader]);
+// let bulbProgram = createShaderProgram([vertexShader, fragmentShader]);
 
 
 const baseUniforms = {
@@ -36,15 +38,13 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
     const uniforms = {
         projectionMatrix: baseUniforms.projectionMatrix,
         cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation),
-        shininess: .1,
-        ambient: .5,
-        light: [1, 50, 2, 1],
+        shininess: 0.1,
+        ambient: .1,
         K_s: .1,
+        cameraVector: v3.normalize(rotationToVector(cameraRotation)),
         cameraPosition: cameraPosition,
-        cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation),
         cubemap: skybox,
-        cameraPosition: cameraPosition,
-        lightPosition
+        lightPosition: [...lightPosition, 0]
     };
     return (objectMatrix, texture, extraUniforms = null) => {
         let u = {
@@ -65,22 +65,35 @@ const {getPosition, getRotation} = getFPSController([23, 32, 32.6], [-45, 45, 0]
 let buffer;
 let bulbBuffer;
 
-let lightPosition = [0, 15, 0];
+let lightPosition = [8, 20, 10];
 let lightRotation = [0, 180, 0];
 let x = -70;
-const animate = () => {
+let renderShadowMap = createShadowMap();
+
+const animateRaycast = () => {
+    let getUniforms = getSceneUniforms(getPosition(), getRotation());
+    const renderBuffers = (program, extraUniforms) => {
+        buffer.forEach((b, i) => {
+            let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, extraUniforms);
+            twgl.setUniforms(program, uniforms);
+            twgl.setBuffersAndAttributes(gl, program, b);
+            twgl.drawBufferInfo(gl, b, glDrawType);
+        })
+    }
+
+    gl.useProgram(program.program);
+    renderBuffers(program);
+};
+
+
+const animateShadowMap = () => {
     lightPosition[2] = x;
     let lp = [...lightPosition, 1];
     let getUniforms = getSceneUniforms(getPosition(), getRotation());
     const renderBuffers = (program, extraUniforms) => {
         buffer.forEach((b, i) => {
             let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, extraUniforms);
-            try {
-                twgl.setUniforms(program, uniforms);
-            } catch (e) {
-                console.log(uniforms);
-                throw e;
-            }
+            twgl.setUniforms(program, uniforms);
             twgl.setBuffersAndAttributes(gl, program, b);
             twgl.drawBufferInfo(gl, b, glDrawType);
         })
@@ -89,6 +102,8 @@ const animate = () => {
 
     gl.useProgram(program.program);
     renderBuffers(program, {shadowMap: depthTexture, lightViewMatrix, lightPosition: lp});
+
+
 
     gl.useProgram(bulbProgram.program);
     getUniforms = getSceneUniforms(getPosition(), getRotation(), lp.slice(0, 3), .3, lightRotation);
@@ -121,5 +136,7 @@ const setup = async () => {
     bulbBuffer = getBufferInfoArray(getVertexAttributes(bulb));
     backfaceCulling();
 }
+
+const animate = animateRaycast;
 
 export {setup, animate};

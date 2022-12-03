@@ -27,21 +27,7 @@ const vertexShader = `
   }
 `;
 
-const fragmentShader = `
-  #version 300 es
-  precision mediump float;
-
-  in vec3 fragNormal;
-  in vec3 fragPosition;
-  in vec2 fragUV;
-  in vec4 cameraSpacePosition;
-  
-  uniform sampler2D tex;
-  uniform vec3 cameraVector; // Needs to be normalized!
-  uniform vec3 cameraPosition;
-  
-  out vec4 outColor;
- 
+const raycastFragmentFunctions = `
   float epsilon = .001f;
   
   vec3 get_vector_to_camera() {
@@ -71,6 +57,24 @@ const fragmentShader = `
         return 1;
     }
   }
+`
+
+const fragmentShader = `
+  #version 300 es
+  precision mediump float;
+
+  in vec3 fragNormal;
+  in vec3 fragPosition;
+  in vec2 fragUV;
+  in vec4 cameraSpacePosition;
+  
+  uniform sampler2D tex;
+  uniform vec3 cameraVector; // Needs to be normalized!
+  uniform vec3 cameraPosition;
+  
+  out vec4 outColor;
+ 
+ ${raycastFragmentFunctions}
   
   void main() {
     vec3 color;
@@ -85,4 +89,4 @@ const fragmentShader = `
   }
 `;
 
-export {vertexShader, fragmentShader};
+export {vertexShader, fragmentShader, raycastFragmentFunctions};
