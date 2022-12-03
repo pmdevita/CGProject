@@ -26,7 +26,6 @@ function createDepthTexture() {
 
 function createDepthBuffer(depthTexture) {
     const depthFramebuffer = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, depthFramebuffer);
     gl.framebufferTexture2D(
         gl.FRAMEBUFFER,       // target
         gl.DEPTH_ATTACHMENT,  // attachment point
