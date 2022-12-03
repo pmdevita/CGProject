@@ -16,11 +16,11 @@ if (window.location.host.endsWith("github.io")) {
     currentPath = window.location.pathname.split("/").slice(2, -1);
 }
 
-const URLToImage = async (url) => {
+const URLToImage = async (url, flipY = true) => {
     let response = await fetch(url);
     let data = await response.blob();
     return createImageBitmap(data, {
-        imageOrientation: "flipY",
+        imageOrientation: flipY ? "flipY" : "none",
         premultiplyAlpha: 'none',
         colorSpaceConversion: 'none'
     });

@@ -80,6 +80,9 @@ const createSCs = (obj) => {
             if (node.material && node.material.map !== null) {
                 sc.material = node.material;
                 sc.texture = createTextureFromGLTF(node.material);
+            } else {
+                sc.material = null;
+                sc.texture = null;
             }
             scs.push(sc);
         }

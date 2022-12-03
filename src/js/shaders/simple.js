@@ -1,4 +1,4 @@
-const vectorShader = `
+const vertexShader = `
   #version 300 es
   precision mediump float;
 
@@ -10,17 +10,19 @@ const vectorShader = `
   uniform mat4 modelMatrix;
   uniform mat4 projectionMatrix;
   uniform mat4 cameraMatrix;
-
+  
   out vec3 fragNormal;
   out vec3 fragPosition;
   out vec2 fragUV;
+  out vec4 cameraSpacePosition;
 
   void main() {
     fragUV = uv;
-    vec4 newPosition = modelMatrix*vec4(position,1);
-    gl_Position = cameraMatrix*newPosition*projectionMatrix;
+    vec4 worldPosition = modelMatrix*vec4(position,1);
+    cameraSpacePosition = projectionMatrix*cameraMatrix*worldPosition;
+    gl_Position = cameraSpacePosition;
     fragNormal = normalize(normal);
-    fragPosition = newPosition.xyz;
+    fragPosition = worldPosition.xyz;
   }
 `;
 
@@ -37,8 +39,9 @@ const fragmentShader = `
   void main() {
     vec3 N = normalize(fragNormal);
     vec3 color = abs(N);
+    // color = vec3(0.5, 0.3, 0.2);
     outColor = vec4(color, 1);
   }
 `;
 
-export {vectorShader, fragmentShader};
+export {vertexShader, fragmentShader};
