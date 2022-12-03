@@ -19,12 +19,12 @@ const getModelMatrix = (model, position, rotation, scale, extents= null) => {
     let ex = extents ? extents : computeModelExtent(model);
 
     let T = m4.translation(v3.negate(ex.center));
-    let cT = m4.translation(position);
     let R_x = m4.rotationX(deg2rad(rotation[0]));
     let R_y = m4.rotationY(deg2rad(rotation[1]));
     let R_z = m4.rotationZ(deg2rad(rotation[2]));
+    let cT = m4.translation(position);
     let S = m4.scaling([scale / 1, scale / 1, scale / 1]);
-    return m4.multiply(m4.multiply(m4.multiply(m4.multiply(m4.multiply(S, R_z), R_y), R_x), T), cT);
+    return m4.multiply(m4.multiply(m4.multiply(m4.multiply(m4.multiply(S, T), cT), R_z), R_y), R_x);
 }
 
 const getFPSCameraMatrix = (coords, angle) => {
@@ -67,5 +67,5 @@ const rotationToVector = (rotation) => {
     return [x, z, y];
 }
 
-export {getModelMatrix, getFPSCameraMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray};
+export {getModelMatrix, getFPSCameraMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray, rotationToVector};
 
