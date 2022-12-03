@@ -13,7 +13,7 @@ import {
 } from "../graphics/transform.js";
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
-import {deg2rad} from "../utils.js";
+import {deg2rad, hex2rgb} from "../utils.js";
 import {backfaceCulling} from "../graphics/glOptions.js";
 import {getCubeMapTexture, getTexture} from "../graphics/textures.js";
 import {renderShadowMap} from "./shadowMap.js";
@@ -35,6 +35,12 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
     let modelMatrix = getModelMatrix(model, position, rotation, scale ? scale : 70 / extents.dia);
     const uniforms = {
         projectionMatrix: baseUniforms.projectionMatrix,
+        cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation),
+        shininess: .1,
+        ambient: .5,
+        light: [1, 50, 2, 1],
+        K_s: .1,
+        cameraPosition: cameraPosition,
         cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation),
         cubemap: skybox,
         cameraPosition: cameraPosition,
