@@ -1,6 +1,6 @@
 import {loadModelFromURL} from "../graphics/model-loader.js";
 import {createShaderProgram} from "../graphics/shaders.js";
-import {fragmentShader, vectorShader} from "../shaders/simple.js";
+import {fragmentShader, vertexShader} from "../shaders/simple.js";
 import {
     getBufferInfoArray,
     getCameraMatrix, getFPSCameraMatrix,
@@ -15,7 +15,7 @@ import {backfaceCulling} from "../graphics/glOptions.js";
 
 
 let kyogre = await loadModelFromURL("./obj/Port Mackerel/portmackeral.obj", "obj");
-let program = createShaderProgram([vectorShader, fragmentShader]);
+let program = createShaderProgram([vertexShader, fragmentShader]);
 
 
 const baseUniforms = {

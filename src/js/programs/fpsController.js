@@ -20,7 +20,7 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1, sen
     document.addEventListener('mozpointerlockchange', mouseLockChange, false);
 
     const mouseMove = (event) => {
-        look[0] = Math.max(Math.min(90, look[0] - event.movementY * sensitivity), -90);
+        look[0] = Math.max(Math.min(89.9, look[0] - event.movementY * sensitivity), -89.9);
         look[1] = ((look[1] - event.movementX * sensitivity) + 360) % 360 ;
     }
 
@@ -96,6 +96,9 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1, sen
     const getRotation = () => {
         return look.map(d => deg2rad(d));
     }
+
+    window.getRotation = () => look;
+    window.getPosition = () => pos;
 
     return {getPosition, getRotation};
 }
