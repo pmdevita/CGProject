@@ -1,5 +1,5 @@
 import "./globals.js";
-import {clearFrame, initGraphics} from "./graphics/basic.js";
+import {clearFrame, initGraphics} from "./graphics/glOptions.js";
 // Import the graphics program here
 import {setup, animate} from "./programs/portmackerel.js";
 
