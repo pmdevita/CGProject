@@ -139,6 +139,7 @@ const drawOnTexture = (texture, program, renderBuffers, toScreen = false) => {
 
     // gl.clearColor(0, .5, 0, 0);
     // gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
+    gl.disable(gl.BLEND);
     duplicateTexture(texture, !toScreen);
     if (!toScreen) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
