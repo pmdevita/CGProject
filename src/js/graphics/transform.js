@@ -24,7 +24,13 @@ const getModelMatrix = (model, position, rotation, scale, extents= null) => {
     let R_z = m4.rotationZ(deg2rad(rotation[2]));
     let cT = m4.translation(position);
     let S = m4.scaling([scale / 1, scale / 1, scale / 1]);
-    return m4.multiply(m4.multiply(m4.multiply(m4.multiply(m4.multiply(S, T), cT), R_z), R_y), R_x);
+    return m4.multiply(S,
+        m4.multiply(R_z,
+            m4.multiply(R_y,
+                m4.multiply(R_z, cT)
+            )
+        )
+    );
 }
 
 const getFPSCameraMatrix = (coords, angle) => {
