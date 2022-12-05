@@ -3,7 +3,7 @@ import {createShaderProgram} from "../graphics/shaders.js";
 import {fragmentShader as simpleFrag, vertexShader as simpleVert} from "../shaders/simple.js";
 import {fragmentShader as textureFragShader, vertexShader as textvert} from "../shaders/texture.js";
 import {fragmentShader as drawfrag} from "../shaders/draw.js";
-import {getSceneUniforms as getSkyboxSceneUniforms} from "../uniforms/skybox.js";
+import {createSkyBox as getSkyboxSceneUniforms} from "../uniforms/skybox.js";
 import {
     getBufferInfoArray,
     getModelMatrix,
@@ -67,8 +67,9 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
 }
 let renderSkybox;
 
-const nicediagposition = [23, 32, 32.6];
-const {getPosition, getRotation} = getFPSController([0, 70, 1], [-90, 180, 0], 0.1);
+// const nicediagposition = [23, 32, 32.6];
+const {getPosition, getRotation} = getFPSController([ -4.6454324467653825, 10.4, -33.33269986411267 ],
+    [ -25.9, 194.5, 0 ], 0.1, 0.3);
 
 let buffer;
 let backgroundBuffer;
@@ -82,6 +83,8 @@ let x = 150;
 // let renderInkTexture = createDrawableTexture(model[0].texture.width, model[0].texture.height);
 
 const animateRaycast = () => {
+    renderSkybox(getRotation());
+
     let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1);
     const renderBuffers = (buffers) => (program, extraUniforms) => {
         buffers.forEach((b, i) => {
@@ -166,8 +169,11 @@ const setup = async () => {
     })
     bulb = await loadModelFromURL("./gltf/Lamp.glb");
     backgroundModel = await loadModelFromURL("./gltf/portmackerel-background.glb");
-    // skybox = getCubeMapTexture("./png/skybox.png");
-    skybox = await getCubeMapTexture(["./png/posx.jpg", "./png/negx.jpg", "./png/posy.jpg", "./png/negy.jpg", "./png/posz.jpg", "./png/negz.jpg"])
+    // skybox = await getCubeMapTexture("./png/skybox.png");
+    // skybox = await getCubeMapTexture(["./png/posx.jpg", "./png/negx.jpg", "./png/posy.jpg", "./png/negy.jpg", "./png/posz.jpg", "./png/negz.jpg"])
+    skybox = await getCubeMapTexture(["./png/pure_sky_skymap/px.png", "./png/pure_sky_skymap/nx.png",
+        "./png/pure_sky_skymap/py.png", "./png/pure_sky_skymap/ny.png",
+        "./png/pure_sky_skymap/pz.png", "./png/pure_sky_skymap/nz.png"])
     renderSkybox = getSkyboxSceneUniforms(skybox, baseUniforms.projectionMatrix)
     buffer = getBufferInfoArray(getVertexAttributes(model));
     bulbBuffer = getBufferInfoArray(getVertexAttributes(bulb));

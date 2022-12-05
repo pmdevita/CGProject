@@ -1,7 +1,6 @@
 import {createShaderProgram} from "../graphics/shaders.js";
 import {fragmentShader as skyboxFragShader, vertexShader as skyboxVertShader} from "../shaders/skybox.js";
-import {deg2rad} from "../utils.js";
-import {getCameraMatrix, getFPSCameraMatrix, rotationToVector} from "../graphics/transform.js";
+import {getCameraMatrix, rotationToVector} from "../graphics/transform.js";
 
 const skyboxProgram = createShaderProgram([skyboxVertShader, skyboxFragShader]);
 
@@ -13,11 +12,10 @@ const skyboxBuffer = twgl.createBufferInfoFromArrays(gl, {
 })
 
 // Call this to receive the render() function
-const getSceneUniforms = (cubemap, projectionMatrix) => {
-
-    return (gl, cameraRotation) => {
-        let cameraMatrix = getCameraMatrix(v3.subtract([0,0,0], rotationToVector(cameraRotation)), [0,0,0]);
-        let invProjectionMatrix = m4.multiply(m4.inverse(projectionMatrix), m4.inverse(cameraMatrix));
+const createSkyBox = (cubemap, projectionMatrix) => {
+    return (cameraRotation) => {
+        let cameraMatrix = getCameraMatrix(rotationToVector(cameraRotation), [0,0,0]);
+        let invProjectionMatrix = m4.multiply(m4.inverse(cameraMatrix), m4.inverse(projectionMatrix));
         let uniforms = {
             cubemap,
             invProjectionMatrix,
@@ -29,9 +27,7 @@ const getSceneUniforms = (cubemap, projectionMatrix) => {
         twgl.setUniforms(skyboxProgram, uniforms);
         twgl.setBuffersAndAttributes(gl, skyboxProgram, skyboxBuffer);
         twgl.drawBufferInfo(gl, skyboxBuffer);
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_COLOR, gl.ONE_MINUS_SRC_COLOR);
     }
 }
 
-export {getSceneUniforms};
+export {createSkyBox};
