@@ -90,14 +90,15 @@ const animateRaycast = () => {
         })
     }
 
+    buffer.forEach((b, i) => {
+        drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), x <= 0);
+    })
+
     gl.useProgram(program.program);
     if (x > 0) {
         renderBuffers(buffer)(program);
     }
 
-    buffer.forEach((b, i) => {
-        drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), x <= 0);
-    })
 
     gl.useProgram(backgroundProgram.program)
     getUniforms = getBackgroundUniforms(backgroundModel, baseUniforms.projectionMatrix, getPosition(), getRotation(), lightPosition, skybox);
