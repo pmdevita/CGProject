@@ -24,10 +24,12 @@ let model;
 let backgroundModel;
 let skybox;
 let bulb;
+let plane;
+let planeBuffer;
 let program = createShaderProgram([textvert, textureFragShader]);
 let drawingProgram = createDrawableShader(drawfrag);
 // let drawingProgram = createDrawableShader(textureFragShader);
-let backgroundProgram = createShaderProgram([simpleVert, backfrag]);
+let backgroundProgram = createShaderProgram([textvert, backfrag]);
 // let bulbProgram = createShaderProgram([vertexShader, fragmentShader]);
 
 
@@ -66,7 +68,7 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
 let renderSkybox;
 
 const nicediagposition = [23, 32, 32.6];
-const {getPosition, getRotation} = getFPSController([0, 1, 1], [-10, 180, 0], 0.1);
+const {getPosition, getRotation} = getFPSController([0, 70, 1], [-90, 180, 0], 0.1);
 
 let buffer;
 let backgroundBuffer;
@@ -80,16 +82,17 @@ let x = 150;
 // let renderInkTexture = createDrawableTexture(model[0].texture.width, model[0].texture.height);
 
 const animateRaycast = () => {
-    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, -2.5, 0], 1);
+    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1);
     const renderBuffers = (buffers) => (program, extraUniforms) => {
         buffers.forEach((b, i) => {
-            let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture, extraUniforms);
+            let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture.copy, extraUniforms);
             twgl.setUniforms(program, uniforms);
             twgl.setBuffersAndAttributes(gl, program, b);
             twgl.drawBufferInfo(gl, b, glDrawType);
         })
     }
 
+    // Call only when you want to draw
     buffer.forEach((b, i) => {
         drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), x <= 0);
     })
@@ -98,6 +101,7 @@ const animateRaycast = () => {
     if (x > 0) {
         renderBuffers(buffer)(program);
     }
+
 
 
     gl.useProgram(backgroundProgram.program)
@@ -157,8 +161,8 @@ const setup = async () => {
     model = await loadModelFromURL("./gltf/portmackerel.glb");
     model.forEach(o => {
         // o.texture.width, o.texture.height
-        // o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
-        o.inkTexture = createDrawableTexture(500, 500);
+        o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
+        // o.inkTexture = createDrawableTexture(500, 500);
     })
     bulb = await loadModelFromURL("./gltf/Lamp.glb");
     backgroundModel = await loadModelFromURL("./gltf/portmackerel-background.glb");

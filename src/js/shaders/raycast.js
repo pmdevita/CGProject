@@ -52,9 +52,9 @@ const raycastFragmentFunctions = `
     float threshold = epsilon / length(cameraSpacePosition) * normal_closeness;
     
     if (closeness + threshold >= 1.f) {
-        return 0;
-    } else {
         return 1;
+    } else {
+        return 0;
     }
   }
 `
