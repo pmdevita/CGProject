@@ -14,9 +14,7 @@ const planeFragmentShader = `
   out vec4 outColor;
 
   void main() {
-    vec3 color = texture(tex, fragUV).xyz;
-    
-    outColor = vec4(color, 1);
+    outColor = texture(tex, fragUV);
   }
 `;
 
