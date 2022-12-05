@@ -1,4 +1,4 @@
-const bgColor = "4682b4";
+const bgColor = "5892b6";
 const glDrawType = gl.TRIANGLES;
 
 const GitHubPages = {

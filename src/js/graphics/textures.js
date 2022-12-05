@@ -51,7 +51,6 @@ const createTextureFromGLTF = (material) => {
     if (material.uuid in gltfTextureCache) {
         return gltfTextureCache[material.uuid];
     }
-    console.log(material.map.source.data);
     let tex = twgl.createTexture(gl, {
         src: material.map.source.data,
         flipY: material.map.flipY,

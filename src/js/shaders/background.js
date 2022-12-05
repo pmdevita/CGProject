@@ -17,22 +17,12 @@ const vertexShader = `
   out vec3 fragNormal;
   out vec3 fragPosition;
   out vec2 fragUV;
-  out vec2 fragUV2;
   out vec4 fragTexture;
-  out vec4 cameraSpacePosition;
-  
-  // float mod(float a, float b) {
-  //   return a - (b * floor(a/b));
-  // }
-  
-  float uv_scale = 1.f;
 
   void main() {
     fragUV = uv;
-    fragUV2 = uv2;
-    vec4 worldPosition = modelMatrix*vec4(position, 1);
-    cameraSpacePosition = projectionMatrix*cameraMatrix*worldPosition;
-    gl_Position = cameraSpacePosition;
+    vec4 worldPosition = modelMatrix*vec4(position,1);
+    gl_Position = projectionMatrix*cameraMatrix*worldPosition;
     fragNormal = normalize(normal);
     fragPosition = worldPosition.xyz;
   }
@@ -45,7 +35,6 @@ const fragmentShader = `
   in vec3 fragNormal;
   in vec3 fragPosition;
   in vec2 fragUV;
-  in vec2 fragUV2;
   in vec4 cameraSpacePosition;
   
   uniform sampler2D tex;
@@ -55,9 +44,6 @@ const fragmentShader = `
   uniform float ambient; 
   uniform vec3 cameraPosition;
   uniform vec4 lightPosition;
-  uniform int viewHeight;
-  uniform int viewWidth;
-  uniform sampler2D inkTexture;
   
   uniform vec3 cameraVector; // Needs to be normalized!
 
@@ -80,16 +66,7 @@ const fragmentShader = `
     
     vec3 color = texture(tex, fragUV).xyz;
     
-    vec3 inkColor = texture(inkTexture, fragUV2).xyz;
-    
-    // if (in_crosshairs() == 1) {
-    if (inkColor.r > 0.5f) {
-      color = color;
-    } else {
-      color = vec3(.4f, .2f, .5f);  // kind of purple
-    }
-    
-    color = apply_lighting(L, H, N, V, color);    
+    color = apply_lighting(L, H, N, V, color);
     
     outColor = vec4(color, 1);
   }

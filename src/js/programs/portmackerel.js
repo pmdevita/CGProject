@@ -1,43 +1,47 @@
 import {computeModelExtent, loadModelFromURL} from "../graphics/model-loader.js";
 import {createShaderProgram} from "../graphics/shaders.js";
 import {fragmentShader as simpleFrag, vertexShader as simpleVert} from "../shaders/simple.js";
-import {fragmentShader as textureFragShader} from "../shaders/texture.js";
-import {fragmentShader as texcubeFragShader} from "../shaders/textureCubemap.js";
-import {vertexShader as rcvert, fragmentShader as rcfrag} from "../shaders/raycast.js"
+import {fragmentShader as textureFragShader, vertexShader as textvert} from "../shaders/texture.js";
+import {fragmentShader as drawfrag} from "../shaders/draw.js";
 import {getSceneUniforms as getSkyboxSceneUniforms} from "../uniforms/skybox.js";
 import {
     getBufferInfoArray,
-    getCameraMatrix, getFPSCameraMatrix,
     getModelMatrix,
     getProjectionMatrix,
-    getVertexAttributes, rotationToVector
+    getVertexAttributes, old_getFPSCameraMatrix, rotationToVector
 } from "../graphics/transform.js";
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
-import {deg2rad, hex2rgb} from "../utils.js";
 import {backfaceCulling} from "../graphics/glOptions.js";
 import {getCubeMapTexture, getTexture} from "../graphics/textures.js";
-import {createShadowMap} from "./shadowMap.js";
+import {createDrawableShader, createDrawableTexture, drawOnTexture} from "./drawOnTexture.js";
+import {getSceneUniforms as getBackgroundUniforms} from "../uniforms/backgroundModel.js"
+import {fragmentShader as backfrag} from "../shaders/background.js";
 
 
 
 let model;
+let backgroundModel;
 let skybox;
 let bulb;
-let program = createShaderProgram([simpleVert, textureFragShader]);
+let program = createShaderProgram([textvert, textureFragShader]);
+let drawingProgram = createDrawableShader(drawfrag);
+// let drawingProgram = createDrawableShader(textureFragShader);
+let backgroundProgram = createShaderProgram([simpleVert, backfrag]);
 // let bulbProgram = createShaderProgram([vertexShader, fragmentShader]);
 
 
 const baseUniforms = {
-    projectionMatrix: getProjectionMatrix(50, 1, 100)
+    projectionMatrix: getProjectionMatrix(50, 1,300),
+    // projectionMatrix: getOrthoProjectionMatrix(1, 1, 1,10)
 };
 
 const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], scale = null, rotation = [0, 0, 0]) => {
     let extents = computeModelExtent(model);
-    let modelMatrix = getModelMatrix(model, position, rotation, scale ? scale : 70 / extents.dia);
+    let modelMatrix = getModelMatrix(model, position, rotation, scale ? scale : 1);
     const uniforms = {
         projectionMatrix: baseUniforms.projectionMatrix,
-        cameraMatrix: getFPSCameraMatrix(cameraPosition, cameraRotation),
+        cameraMatrix: old_getFPSCameraMatrix(cameraPosition, cameraRotation),
         shininess: 0.1,
         ambient: .1,
         K_s: .1,
@@ -46,10 +50,11 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
         cubemap: skybox,
         lightPosition: [...lightPosition, 0]
     };
-    return (objectMatrix, texture, extraUniforms = null) => {
+    return (objectMatrix, texture, inkTexture, extraUniforms = null) => {
         let u = {
             ...uniforms,
             modelMatrix: m4.multiply(modelMatrix, objectMatrix),
+            inkTexture,
             ...extraUniforms
         };
         if (texture) {
@@ -60,21 +65,25 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
 }
 let renderSkybox;
 
-const {getPosition, getRotation} = getFPSController([23, 32, 32.6], [-45, 45, 0], 0.2);
+const nicediagposition = [23, 32, 32.6];
+const {getPosition, getRotation} = getFPSController([0, 1, 1], [-10, 180, 0], 0.1);
 
 let buffer;
+let backgroundBuffer;
 let bulbBuffer;
 
 let lightPosition = [8, 20, 10];
 let lightRotation = [0, 180, 0];
-let x = -70;
-let renderShadowMap = createShadowMap();
+let x = 150;
+// let renderShadowMap = createShadowMap();
+
+// let renderInkTexture = createDrawableTexture(model[0].texture.width, model[0].texture.height);
 
 const animateRaycast = () => {
-    let getUniforms = getSceneUniforms(getPosition(), getRotation());
-    const renderBuffers = (program, extraUniforms) => {
-        buffer.forEach((b, i) => {
-            let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, extraUniforms);
+    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, -2.5, 0], 1);
+    const renderBuffers = (buffers) => (program, extraUniforms) => {
+        buffers.forEach((b, i) => {
+            let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture, extraUniforms);
             twgl.setUniforms(program, uniforms);
             twgl.setBuffersAndAttributes(gl, program, b);
             twgl.drawBufferInfo(gl, b, glDrawType);
@@ -82,7 +91,26 @@ const animateRaycast = () => {
     }
 
     gl.useProgram(program.program);
-    renderBuffers(program);
+    if (x > 0) {
+        renderBuffers(buffer)(program);
+    }
+
+    buffer.forEach((b, i) => {
+        drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), x <= 0);
+    })
+
+    gl.useProgram(backgroundProgram.program)
+    getUniforms = getBackgroundUniforms(backgroundModel, baseUniforms.projectionMatrix, getPosition(), getRotation(), lightPosition, skybox);
+    backgroundBuffer.forEach((b, i) => {
+        let uniforms = getUniforms(backgroundModel[i].modelMatrix, backgroundModel[i].texture);
+        twgl.setUniforms(backgroundProgram, uniforms);
+        twgl.setBuffersAndAttributes(gl, backgroundProgram, b);
+        twgl.drawBufferInfo(gl, b, glDrawType);
+    })
+    // x--;
+    if (x < -150) {
+        x = 150;
+    }
 };
 
 
@@ -126,15 +154,19 @@ const animateShadowMap = () => {
 
 const setup = async () => {
     model = await loadModelFromURL("./gltf/portmackerel.glb");
+    model.forEach(o => {
+        // o.texture.width, o.texture.height
+        // o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
+        o.inkTexture = createDrawableTexture(500, 500);
+    })
     bulb = await loadModelFromURL("./gltf/Lamp.glb");
+    backgroundModel = await loadModelFromURL("./gltf/portmackerel-background.glb");
     // skybox = getCubeMapTexture("./png/skybox.png");
     skybox = await getCubeMapTexture(["./png/posx.jpg", "./png/negx.jpg", "./png/posy.jpg", "./png/negy.jpg", "./png/posz.jpg", "./png/negz.jpg"])
     renderSkybox = getSkyboxSceneUniforms(skybox, baseUniforms.projectionMatrix)
-    console.log(model);
-    console.log(model[0].texture)
     buffer = getBufferInfoArray(getVertexAttributes(model));
     bulbBuffer = getBufferInfoArray(getVertexAttributes(bulb));
-    backfaceCulling();
+    backgroundBuffer = getBufferInfoArray(getVertexAttributes(backgroundModel));
 }
 
 const animate = animateRaycast;

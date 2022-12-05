@@ -39,6 +39,8 @@ const getCameraMatrix = (coords, lookAt) => {
 
 const getProjectionMatrix = (fov, near, far) => m4.perspective(deg2rad(fov), gl.canvas.width / gl.canvas.height, near, far);
 
+const getOrthoProjectionMatrix = (width, height, near, far) => m4.ortho(0, width, 0, height, near, far)
+
 const getVertexAttributes = (model) => model.map(d => {
     let totalVertices = d.sc.position.length / 3;
     let data = {};
@@ -67,5 +69,13 @@ const rotationToVector = (rotation) => {
     return [x, z, y];
 }
 
-export {getModelMatrix, getFPSCameraMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray, rotationToVector};
+const old_getFPSCameraMatrix = (coords, angle) => {
+    let t = m4.translate(m4.identity(), coords);
+    let rY = m4.rotationY(angle[1]);
+    let rX = m4.rotationX(angle[0]);
+    t = m4.multiply(m4.multiply(t, rY), rX);
+    return m4.inverse(t);
+}
+
+export {old_getFPSCameraMatrix, getModelMatrix, getFPSCameraMatrix, getCameraMatrix, getProjectionMatrix, getVertexAttributes, getBufferInfoArray, rotationToVector, getOrthoProjectionMatrix};
 

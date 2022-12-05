@@ -2,7 +2,11 @@ import {createShaderProgram} from "../graphics/shaders.js";
 import {fragmentShader, vertexShader} from "../shaders/shadowMap.js";
 import {getFPSCameraMatrix} from "../graphics/transform.js";
 
-function createDepthTexture() {
+function createDepthTexture(width = null, height = null) {
+    if (width === null || height === null) {
+        width = gl.canvas.width;
+        height = gl.canvas.height;
+    }
 
     const depthTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, depthTexture);
@@ -10,8 +14,8 @@ function createDepthTexture() {
         gl.TEXTURE_2D,      // target
         0,                  // mip level
         gl.DEPTH_COMPONENT32F, // internal format
-        gl.canvas.width,    // width
-        gl.canvas.height,   // height
+        width,    // width
+        height,   // height
         0,                  // border
         gl.DEPTH_COMPONENT, // format
         gl.FLOAT,           // type
@@ -44,20 +48,31 @@ const getUniforms = (lightPosition, lightMatrix) => {
     }
 }
 
-const createShadowMap = () => {
-    const depthTexture = createDepthTexture();
+const createShadowMap = (width = null, height = null) => {
+    let w, h;
+    if (width === null || height === null) {
+        w = gl.canvas.width;
+        h = gl.canvas.height;
+    } else {
+        w = width;
+        h = height;
+    }
+
+    const depthTexture = createDepthTexture(w, h);
     const depthBuffer = createDepthBuffer(depthTexture);
 
-    function renderShadowMap(lightPosition, lightRotation, projectionMatrix, renderBuffers) {
+    function renderShadowMap(lightPosition, lightRotation, projectionMatrix, renderBuffers, overrideProgram = null) {
+        let p = overrideProgram ? overrideProgram : shadowMapProgram;
+
         gl.bindFramebuffer(gl.FRAMEBUFFER, depthBuffer);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(shadowMapProgram.program);
+        gl.useProgram(p.program);
 
         // console.log(lightPosition, lightRotation);
         let lightMatrix = getFPSCameraMatrix(lightPosition, lightRotation);
 
         let uniforms = getUniforms(lightPosition, lightMatrix);
-        renderBuffers(shadowMapProgram, uniforms);
+        renderBuffers(p, uniforms);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
