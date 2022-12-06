@@ -45,6 +45,7 @@ let mapObjects = document.getElementById("mapObjects");
 let selectInkColor = document.getElementById("inkColor");
 let coverageButton = document.getElementById("coverage");
 let coverageInfo = document.getElementById("coverageInfo");
+let resetButton = document.getElementById("reset");
 let slider = document.getElementById("rangeSlider");
 
 const baseUniforms = {
@@ -120,6 +121,7 @@ const doCalculation = () => {
     coverageInfo.textContent = `Purple: ${totalCoverage[0]}, Orange:  ${totalCoverage[1]}, Green: ${totalCoverage[2]}, Pink:  ${totalCoverage[3]}`;
 }
 coverageButton.onclick = doCalculation;
+resetButton.onclick = () => resetInkTextures(model);
 
 
 const animateRaycast = () => {
