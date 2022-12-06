@@ -209,14 +209,18 @@ const animateShadowMap = () => {
 
 };
 
-const setup = async () => {
-    model = await loadModelFromURL("./gltf/portmackerel.glb");
+const resetInkTextures = (model) => {
     model.forEach(o => {
         // o.texture.width, o.texture.height
         o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
         // o.inkTexture = createDrawableTexture(500, 500);
         makeTextureInkSummable(o.inkTexture);
     })
+}
+
+const setup = async () => {
+    model = await loadModelFromURL("./gltf/portmackerel.glb");
+    resetInkTextures(model);
     bulb = await loadModelFromURL("./gltf/Lamp.glb");
     backgroundModel = await loadModelFromURL("./gltf/portmackerel-background.glb");
     // skybox = await getCubeMapTexture("./png/skybox.png");
