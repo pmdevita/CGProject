@@ -104,7 +104,9 @@ const drawOnTexture = (texture, program, renderBuffers, color, toScreen = false)
         projectionMatrix,
         cameraMatrix,
         drawColor: color,
-        screenDraw: toScreen ? 1 : 0
+        screenDraw: toScreen ? 1 : 0,
+        uvScale: 1,
+        unwrapSlider: 1
     }
 
 

@@ -19,6 +19,7 @@ import {getSceneUniforms as getBackgroundUniforms} from "../uniforms/backgroundM
 import {fragmentShader as backfrag} from "../shaders/background.js";
 import {hex2rgb} from "../utils.js";
 import {makeTextureInkSummable, sumInk} from "./sumInk.js";
+import {vertexShader as unwrapvert} from "../shaders/unwrapUVs.js";
 
 
 
@@ -29,6 +30,7 @@ let bulb;
 let plane;
 let planeBuffer;
 let program = createShaderProgram([textvert, textureFragShader]);
+let unwrapProgram = createShaderProgram([unwrapvert, textureFragShader]);
 let drawingProgram = createDrawableShader(drawfrag);
 // let drawingProgram = createDrawableShader(textureFragShader);
 let backgroundProgram = createShaderProgram([textvert, backfrag]);
@@ -49,7 +51,7 @@ const baseUniforms = {
     // projectionMatrix: getOrthoProjectionMatrix(1, 1, 1,10)
 };
 
-const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], scale = null, rotation = [0, 0, 0], currentColor) => {
+const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], scale = null, rotation = [0, 0, 0], currentColor, unwrapSlider) => {
     let extents = computeModelExtent(model);
     let modelMatrix = getModelMatrix(model, position, rotation, scale ? scale : 1);
     const uniforms = {
@@ -60,15 +62,18 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
         K_s: .1,
         cameraVector: v3.normalize(rotationToVector(cameraRotation)),
         cameraPosition: cameraPosition,
+        unwrapSlider: unwrapSlider,
         currentColor,
         cubemap: skybox,
         lightPosition: [...lightPosition, 0]
     };
-    return (objectMatrix, texture, inkTexture, extraUniforms = null) => {
+    return (objectMatrix, texture, inkTexture, index, extraUniforms = null) => {
         let u = {
             ...uniforms,
             modelMatrix: m4.multiply(modelMatrix, objectMatrix),
             inkTexture,
+            offsetCoords: [0, index * 3 + 10, 0],
+            uvScale: 30,
             ...extraUniforms
         };
         if (texture) {
@@ -89,7 +94,7 @@ let bulbBuffer;
 
 let lightPosition = [8, 20, 10];
 let lightRotation = [0, 180, 0];
-let x = 150;
+let x = 0;
 
 let coverage = [0, 0, 0, 0];
 
@@ -120,10 +125,10 @@ const animateRaycast = () => {
     let colorIndex = parseInt(selectInkColor.value);
     renderSkybox(getRotation());
 
-    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1, [0,0,0], inkColors[colorIndex]);
+    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1, [0,0,0], inkColors[colorIndex], x / 1000);
     const renderBuffers = (buffers) => (program, extraUniforms) => {
         buffers.forEach((b, i) => {
-            let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture.copy, extraUniforms);
+            let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture.copy, i, extraUniforms);
             twgl.setUniforms(program, uniforms);
             twgl.setBuffersAndAttributes(gl, program, b);
             twgl.drawBufferInfo(gl, b, glDrawType);
@@ -156,9 +161,9 @@ const animateRaycast = () => {
 
 
 
-    gl.useProgram(program.program);
+    gl.useProgram(unwrapProgram.program);
     // if (x > 0) {
-    renderBuffers(buffer)(program);
+    renderBuffers(buffer)(unwrapProgram);
     // }
     if (showInkTextureRender.checked) {
         let objectIndex = parseInt(mapObjects.value);
@@ -175,9 +180,10 @@ const animateRaycast = () => {
         twgl.drawBufferInfo(gl, b, glDrawType);
     })
 
-    x--;
-    if (x < -150) {
-        x = 150;
+    // x--;
+    if (x < 0) {
+        console.log("hi");
+        x = 1000;
     }
 };
 
