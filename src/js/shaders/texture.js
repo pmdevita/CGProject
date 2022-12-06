@@ -83,11 +83,11 @@ const fragmentShader = `
     
     vec4 inkColor = texture(inkTexture, fragUV2);
     
-    if (inkColor.w > .5f) {
+    if (in_crosshairs() == 1) {
+      color = currentColor;
+    } else if (inkColor.w > .5f) {
       // color = vec3(.4f, .2f, .5f);  // kind of purple
       color = inkColor.xyz;
-    } else if (in_crosshairs() == 1) {
-      color = currentColor;
     } else {
       color = color;
     }
