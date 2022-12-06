@@ -38,8 +38,6 @@ const raycastFragmentFunctions = `
   float vector_closeness(vec3 a, vec3 b) {
     float similarity = dot(a, b);
     return similarity;
-
-    return clamp(similarity, 0.f, 1.f);
   }
   
   float get_camera_closeness() {

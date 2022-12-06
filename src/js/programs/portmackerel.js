@@ -45,6 +45,7 @@ let mapObjects = document.getElementById("mapObjects");
 let selectInkColor = document.getElementById("inkColor");
 let coverageButton = document.getElementById("coverage");
 let coverageInfo = document.getElementById("coverageInfo");
+let slider = document.getElementById("rangeSlider");
 
 const baseUniforms = {
     projectionMatrix: getProjectionMatrix(50, 1,300),
@@ -125,7 +126,7 @@ const animateRaycast = () => {
     let colorIndex = parseInt(selectInkColor.value);
     renderSkybox(getRotation());
 
-    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1, [0,0,0], inkColors[colorIndex], x / 1000);
+    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1, [0,0,0], inkColors[colorIndex], (parseInt(slider.value)) / 100);
     const renderBuffers = (buffers) => (program, extraUniforms) => {
         buffers.forEach((b, i) => {
             let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture.copy, i, extraUniforms);
@@ -141,24 +142,6 @@ const animateRaycast = () => {
             drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), inkColors[colorIndex]);
         });
     }
-
-    // Calculate total coverage
-    if (false) {
-        // Call to update totalCoverage
-        let objectCoverage = model.map(o => {
-            return sumInk(o.inkTexture, inkColors);
-        });
-        console.log(objectCoverage);
-        let totalCoverage = [];
-        for (let i = 0; i < inkColors.length; i++) {
-            let sum = objectCoverage.reduce((partialSum, c) => partialSum + c[i], 0);
-            // Doesn't work unless we fix percentages
-            // totalCoverage.push(sum / objectCoverage.length);
-            totalCoverage.push(sum);
-        }
-        console.log("total coverage", totalCoverage);
-    }
-
 
 
     gl.useProgram(unwrapProgram.program);
