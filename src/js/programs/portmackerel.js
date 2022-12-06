@@ -73,7 +73,7 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
             ...uniforms,
             modelMatrix: m4.multiply(modelMatrix, objectMatrix),
             inkTexture,
-            offsetCoords: [0, index * 3 + 10, 0],
+            offsetCoords: [-15, index * 3 + 10, -15],
             uvScale: 30,
             ...extraUniforms
         };
