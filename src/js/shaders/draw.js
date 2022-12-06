@@ -31,6 +31,8 @@ const fragmentShader = `
   uniform sampler2D tex;
   uniform vec3 cameraVector; // Needs to be normalized!
   uniform vec3 cameraPosition;
+  uniform vec3 drawColor;
+  uniform int screenDraw;
   
   out vec4 outColor;
  
@@ -40,9 +42,13 @@ const fragmentShader = `
     vec4 color;
     
     if (in_crosshairs() == 1) {
-      color = vec4(1.f, .4f, .5f, 1.f);
+      color = vec4(drawColor, 1.f);
     } else {
-      color = vec4(0.f, 0.f, 0.f, .0f);
+      if (screenDraw == 1) {
+        color = vec4(.1, .1, .1, 0.5);
+      } else {
+        color = vec4(0.f, 0.f, 0.f, 0.f);
+      }
     }
     
     outColor = color;

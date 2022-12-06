@@ -84,8 +84,8 @@ const fragmentShader = `
     
     // if (in_crosshairs() == 1) {
     if (inkColor.w > .5f) {
-      color = vec3(.4f, .2f, .5f);  // kind of purple
-      // color = inkColor.xyz;
+      // color = vec3(.4f, .2f, .5f);  // kind of purple
+      color = inkColor.xyz;
     } else {
       color = color;
     }

@@ -60,19 +60,22 @@ const createDrawableTexture = (width, height) => {
     return drawableTexture;
 }
 
-const renderPlane = (texture) => {
+const renderTexture = (texture, shader = null, uniforms = null) => {
     if (planeBuffers) {
-        gl.useProgram(planeProgram.program);
+        if (!shader) {
+            shader = planeProgram;
+        }
+        gl.useProgram(shader.program);
         let planeUniforms = {
             modelMatrix: m4.multiply(getModelMatrix(planeModel, [0, 1, 2], [0, 0, 0], 0.5), planeModel[0].modelMatrix),
             cameraMatrix,
             projectionMatrix: projectionMatrix,
-            tex: texture.copy
-            // tex: planeModel[0].texture
+            tex: texture,
+            ...uniforms
         }
         planeBuffers.forEach((b, i) => {
-            twgl.setUniforms(planeProgram, planeUniforms);
-            twgl.setBuffersAndAttributes(gl, planeProgram, b);
+            twgl.setUniforms(shader, planeUniforms);
+            twgl.setBuffersAndAttributes(gl, shader, b);
             twgl.drawBufferInfo(gl, b, glDrawType);
         })
     }
@@ -80,33 +83,38 @@ const renderPlane = (texture) => {
 
 let flip = false;
 
-const drawOnTexture = (texture, program, renderBuffers, toScreen = false) => {
+const drawOnTexture = (texture, program, renderBuffers, color, toScreen = false) => {
     if (!toScreen) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, texture.buffer);
+        gl.viewport(0, 0, texture.width, texture.height);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
+    } else {
+        // lower quadrant
+        gl.viewport(0, 0, gl.canvas.width/2 - 20, gl.canvas.height/2 - 20);
     }
-    gl.viewport(0, 0, texture.width, texture.height);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.colorMask(true, true, true, true);
 
-    renderPlane(texture);
+    renderTexture(texture.copy, planeProgram, {screenDraw: toScreen ? 1 : 0});
 
     let uniforms = {
         projectionMatrix,
-        cameraMatrix
+        cameraMatrix,
+        drawColor: color,
+        screenDraw: toScreen ? 1 : 0
     }
 
 
     gl.useProgram(program.program);
     renderBuffers(program, uniforms);
 
-    // gl.clearColor(0, .5, 0, 0);
-    // gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.BLEND);
-    duplicateTexture(texture, !toScreen);
+    if (!toScreen) {
+        duplicateTexture(texture, !toScreen);
+    }
     if (!toScreen) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
@@ -114,4 +122,4 @@ const drawOnTexture = (texture, program, renderBuffers, toScreen = false) => {
 }
 
 
-export {createDrawableTexture, createDrawableShader, drawOnTexture};
+export {createDrawableTexture, createDrawableShader, drawOnTexture, renderTexture};

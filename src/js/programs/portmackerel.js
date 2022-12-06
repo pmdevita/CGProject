@@ -13,11 +13,12 @@ import {
 import {glDrawType} from "../config.js";
 import {getFPSController} from "./fpsController.js";
 import {backfaceCulling} from "../graphics/glOptions.js";
-import {getCubeMapTexture, getTexture} from "../graphics/textures.js";
+import {getCubeMapTexture, getTexture, textureToArray} from "../graphics/textures.js";
 import {createDrawableShader, createDrawableTexture, drawOnTexture} from "./drawOnTexture.js";
 import {getSceneUniforms as getBackgroundUniforms} from "../uniforms/backgroundModel.js"
 import {fragmentShader as backfrag} from "../shaders/background.js";
 import {hex2rgb} from "../utils.js";
+import {makeTextureInkSummable, sumInk} from "./sumInk.js";
 
 
 
@@ -32,6 +33,7 @@ let drawingProgram = createDrawableShader(drawfrag);
 // let drawingProgram = createDrawableShader(textureFragShader);
 let backgroundProgram = createShaderProgram([textvert, backfrag]);
 // let bulbProgram = createShaderProgram([vertexShader, fragmentShader]);
+
 let inkColors = ["6c57f5", "f1fa06", "79f3e0", "f9af5c"].map(hex2rgb);
 
 
@@ -99,13 +101,32 @@ const animateRaycast = () => {
 
     // Call only when you want to draw
     buffer.forEach((b, i) => {
-        drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), x <= 0);
-    })
+        drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), inkColors[2], true);
+    });
+
+    // about once every 5 seconds
+    if (x === 0) {
+        // Call to update totalCoverage
+        let objectCoverage = model.map(o => {
+            return sumInk(o.inkTexture, inkColors);
+        });
+        console.log(objectCoverage);
+        let totalCoverage = [];
+        for (let i = 0; i < inkColors.length; i++) {
+            let sum = objectCoverage.reduce((partialSum, c) => partialSum + c[i], 0);
+            // Doesn't work unless we fix percentages
+            // totalCoverage.push(sum / objectCoverage.length);
+            totalCoverage.push(sum);
+        }
+        console.log("total coverage", totalCoverage);
+    }
+
+
 
     gl.useProgram(program.program);
-    if (x > 0) {
-        renderBuffers(buffer)(program);
-    }
+    // if (x > 0) {
+    renderBuffers(buffer)(program);
+    // }
 
 
 
@@ -117,7 +138,8 @@ const animateRaycast = () => {
         twgl.setBuffersAndAttributes(gl, backgroundProgram, b);
         twgl.drawBufferInfo(gl, b, glDrawType);
     })
-    // x--;
+
+    x--;
     if (x < -150) {
         x = 150;
     }
@@ -166,8 +188,9 @@ const setup = async () => {
     model = await loadModelFromURL("./gltf/portmackerel.glb");
     model.forEach(o => {
         // o.texture.width, o.texture.height
-        o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
-        // o.inkTexture = createDrawableTexture(500, 500);
+        // o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
+        o.inkTexture = createDrawableTexture(500, 500);
+        makeTextureInkSummable(o.inkTexture);
     })
     bulb = await loadModelFromURL("./gltf/Lamp.glb");
     backgroundModel = await loadModelFromURL("./gltf/portmackerel-background.glb");
