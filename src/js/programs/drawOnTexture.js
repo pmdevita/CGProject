@@ -91,7 +91,7 @@ const drawOnTexture = (texture, program, renderBuffers, color, toScreen = false)
         gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
     } else {
         // lower quadrant
-        gl.viewport(0, 0, gl.canvas.width/2 - 20, gl.canvas.height/2 - 20);
+        gl.viewport(0, 0, gl.canvas.height/2 - 20, gl.canvas.height/2 - 20);
     }
 
     gl.enable(gl.BLEND);
