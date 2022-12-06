@@ -36,6 +36,13 @@ let backgroundProgram = createShaderProgram([textvert, backfrag]);
 
 let inkColors = ["6c57f5", "f1fa06", "79f3e0", "f9af5c"].map(hex2rgb);
 
+// html elements
+// let alwaysCompute = document.getElementById("alwaysCompute");
+let showInkTextureRender = document.getElementById("showInkTextureRender");
+let mapObjects = document.getElementById("mapObjects");
+let selectInkColor = document.getElementById("inkColor");
+let coverageButton = document.getElementById("coverage");
+let coverageInfo = document.getElementById("coverageInfo");
 
 const baseUniforms = {
     projectionMatrix: getProjectionMatrix(50, 1,300),
@@ -83,14 +90,37 @@ let bulbBuffer;
 let lightPosition = [8, 20, 10];
 let lightRotation = [0, 180, 0];
 let x = 150;
+
+let coverage = [0, 0, 0, 0];
+
 // let renderShadowMap = createShadowMap();
 
 // let renderInkTexture = createDrawableTexture(model[0].texture.width, model[0].texture.height);
 
+const doCalculation = () => {
+    // Call to update totalCoverage
+    let objectCoverage = model.map(o => {
+        return sumInk(o.inkTexture, inkColors);
+    });
+    console.log(objectCoverage);
+    let totalCoverage = [];
+    for (let i = 0; i < inkColors.length; i++) {
+        let sum = objectCoverage.reduce((partialSum, c) => partialSum + c[i], 0);
+        // Doesn't work unless we fix percentages
+        // totalCoverage.push(sum / objectCoverage.length);
+        totalCoverage.push(sum);
+    }
+    console.log("total coverage", totalCoverage);
+    coverageInfo.textContent = `Purple: ${totalCoverage[0]}, Orange:  ${totalCoverage[1]}, Green: ${totalCoverage[2]}, Pink:  ${totalCoverage[3]}`;
+}
+coverageButton.onclick = doCalculation;
+
+
 const animateRaycast = () => {
+    let colorIndex = parseInt(selectInkColor.value);
     renderSkybox(getRotation());
 
-    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1, [0,0,0], inkColors[2]);
+    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1, [0,0,0], inkColors[colorIndex]);
     const renderBuffers = (buffers) => (program, extraUniforms) => {
         buffers.forEach((b, i) => {
             let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture.copy, extraUniforms);
@@ -103,7 +133,7 @@ const animateRaycast = () => {
     if (getMouseClick()) {
         // Call only when you want to draw
         buffer.forEach((b, i) => {
-            drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), inkColors[2]);
+            drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), inkColors[colorIndex]);
         });
     }
 
@@ -130,7 +160,10 @@ const animateRaycast = () => {
     // if (x > 0) {
     renderBuffers(buffer)(program);
     // }
-
+    if (showInkTextureRender.checked) {
+        let objectIndex = parseInt(mapObjects.value);
+        drawOnTexture(model[objectIndex].inkTexture, drawingProgram, renderBuffers([buffer[objectIndex]]), inkColors[colorIndex], true);
+    }
 
 
     gl.useProgram(backgroundProgram.program)

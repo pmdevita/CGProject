@@ -3,6 +3,7 @@
     <head>
         <title>Splatoon Experiment</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
     </head>
     <body>
         <canvas id="canvas" width="800" height="800"></canvas>
@@ -13,5 +14,29 @@
         <script src="https://unpkg.com/three@0.146.0/examples/js/loaders/GLTFLoader.js"></script>
         <script src="https://unpkg.com/three@0.146.0/examples/js/loaders/ColladaLoader.js"></script>
         <script type="module" src="./js/main.js"></script>
+        <fieldset>
+            <legend>Settings</legend>
+
+            <div class="settings-form">
+<!--                <label><input type="checkbox" id="alwaysCompute" name="alwaysCompute" value="" checked /> Always compute</label>-->
+                <div class="coverage-div"><button id="coverage">Update Coverage</button><div id="coverageInfo"></div></div>
+                <label><input type="checkbox" id="showInkTextureRender" name="showInkTextureRender" /> Show ink texture render</label>
+                <label>Choose map object:
+                    <select name="mapObjects" id="mapObjects">
+                        <option value="0">Walls</option>
+                        <option value="1">Floor</option>
+                        <option value="2">Slope</option>
+                    </select>
+                </label>
+                <label>Ink color:
+                    <select name="inkColor" id="inkColor" value="0">
+                        <option value="0">Purple</option>
+                        <option value="1">Orange</option>
+                        <option value="2">Green</option>
+                        <option value="3">Pink</option>
+                    </select>
+                </label>
+            </div>
+        </fieldset>
     </body>
 </html>
