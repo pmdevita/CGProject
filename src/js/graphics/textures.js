@@ -63,4 +63,49 @@ const createTextureFromGLTF = (material) => {
     return tex
 }
 
-export {getTexture, createTextureFromGLTF, getCubeMapTexture}
+const createRGBATexture = (width, height) => {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+        gl.TEXTURE_2D,      // target
+        0,                  // mip level
+        gl.RGBA, // internal format
+        width,    // width
+        height,   // height
+        0,                  // border
+        gl.RGBA, // format
+        gl.UNSIGNED_BYTE,           // type
+        null);              // data
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    texture.width = width;
+    texture.height = height;
+    return texture;
+}
+
+const createRGBATextureBuffer = (texture) => {
+    const framebuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,       // target
+        gl.COLOR_ATTACHMENT0,  // attachment point
+        gl.TEXTURE_2D,        // texture target
+        texture,         // texture
+        0);                   // mip level
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return framebuffer;
+}
+
+const textureToArray = (texture, framebuffer = null) => {
+    if (!framebuffer) {
+        framebuffer = createRGBATextureBuffer(texture);
+    }
+    // gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    let pixels = new Uint8Array(texture.width * texture.height * 4);
+    gl.readPixels(0, 0, texture.width, texture.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    return pixels;
+}
+
+export {getTexture, createTextureFromGLTF, getCubeMapTexture, textureToArray, createRGBATexture, createRGBATextureBuffer}

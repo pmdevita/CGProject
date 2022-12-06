@@ -1,14 +1,17 @@
 import {createShaderProgram} from "../graphics/shaders.js";
 import {vertexShader} from "../shaders/unwrapUVs.js";
 import {
-    getBufferInfoArray, getModelMatrix,
-    getOrthoProjectionMatrix, getVertexAttributes,
+    getBufferInfoArray,
+    getModelMatrix,
+    getOrthoProjectionMatrix,
+    getVertexAttributes,
     old_getFPSCameraMatrix
 } from "../graphics/transform.js";
-import {vertexShader as simpVert, fragmentShader as simpFrag} from "../shaders/simple.js"
+import {vertexShader as simpVert} from "../shaders/simple.js"
 import {loadModelFromURL} from "../graphics/model-loader.js";
 import {glDrawType} from "../config.js";
 import {planeFragmentShader} from "../shaders/draw.js";
+import {createRGBATexture, createRGBATextureBuffer} from "../graphics/textures.js";
 
 const projectionMatrix = getOrthoProjectionMatrix(1, 1, 1,10);
 // const projectionMatrix = getOrthoProjectionMatrix(10, 10, 1,500);
@@ -37,29 +40,6 @@ loadModelFromURL("./gltf/plane.glb").then(m => {
 
 const planeProgram = createShaderProgram([simpVert, planeFragmentShader]);
 
-function createDrawingTexture(width, height) {
-
-    const drawingTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, drawingTexture);
-    gl.texImage2D(
-        gl.TEXTURE_2D,      // target
-        0,                  // mip level
-        gl.RGBA, // internal format
-        width,    // width
-        height,   // height
-        0,                  // border
-        gl.RGBA, // format
-        gl.UNSIGNED_BYTE,           // type
-        null);              // data
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    drawingTexture.width = width;
-    drawingTexture.height = height;
-    return drawingTexture;
-}
-
 function duplicateTexture(texture, bindFramebuffer = false) {
     if (bindFramebuffer) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, texture.buffer);
@@ -69,28 +49,14 @@ function duplicateTexture(texture, bindFramebuffer = false) {
     gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
-function createDrawingBuffer(depthTexture) {
-    const depthFramebuffer = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, depthFramebuffer);
-    gl.framebufferTexture2D(
-        gl.FRAMEBUFFER,       // target
-        gl.COLOR_ATTACHMENT0,  // attachment point
-        gl.TEXTURE_2D,        // texture target
-        depthTexture,         // texture
-        0);                   // mip level
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    return depthFramebuffer;
-}
-
 const createDrawableShader = (fragmentShader) => {
     return createShaderProgram([vertexShader, fragmentShader]);
 }
 
 const createDrawableTexture = (width, height) => {
-    const drawableTexture = createDrawingTexture(width, height);
-    const drawableBuffer = createDrawingBuffer(drawableTexture);
-    drawableTexture.buffer = drawableBuffer;
-    drawableTexture.copy = createDrawingTexture(width, height);
+    const drawableTexture = createRGBATexture(width, height);
+    drawableTexture.buffer = createRGBATextureBuffer(drawableTexture);
+    drawableTexture.copy = createRGBATexture(width, height);
     return drawableTexture;
 }
 
