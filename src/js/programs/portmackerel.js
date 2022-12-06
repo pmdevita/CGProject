@@ -17,6 +17,7 @@ import {getCubeMapTexture, getTexture} from "../graphics/textures.js";
 import {createDrawableShader, createDrawableTexture, drawOnTexture} from "./drawOnTexture.js";
 import {getSceneUniforms as getBackgroundUniforms} from "../uniforms/backgroundModel.js"
 import {fragmentShader as backfrag} from "../shaders/background.js";
+import {hex2rgb} from "../utils.js";
 
 
 
@@ -31,6 +32,7 @@ let drawingProgram = createDrawableShader(drawfrag);
 // let drawingProgram = createDrawableShader(textureFragShader);
 let backgroundProgram = createShaderProgram([textvert, backfrag]);
 // let bulbProgram = createShaderProgram([vertexShader, fragmentShader]);
+let inkColors = ["6c57f5", "f1fa06", "79f3e0", "f9af5c"].map(hex2rgb);
 
 
 const baseUniforms = {
