@@ -58,6 +58,7 @@ const fragmentShader = `
   uniform int viewHeight;
   uniform int viewWidth;
   uniform sampler2D inkTexture;
+  uniform vec3 currentColor;
   
   uniform vec3 cameraVector; // Needs to be normalized!
 
@@ -82,14 +83,14 @@ const fragmentShader = `
     
     vec4 inkColor = texture(inkTexture, fragUV2);
     
-    // if (in_crosshairs() == 1) {
     if (inkColor.w > .5f) {
       // color = vec3(.4f, .2f, .5f);  // kind of purple
       color = inkColor.xyz;
+    } else if (in_crosshairs() == 1) {
+      color = currentColor;
     } else {
       color = color;
     }
-    // color = vec3(inkColor.w);
     
     color = apply_lighting(L, H, N, V, color);    
     

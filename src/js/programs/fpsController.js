@@ -29,11 +29,36 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1, sen
             document.mozPointerLockElement === canvas) {
             document.addEventListener("mousemove", mouseMove, false);
             document.addEventListener("keydown",  keyDown);
+            document.addEventListener("mousedown", onMouseDown);
+            document.addEventListener("mouseup", onMouseUp);
         } else {
             document.removeEventListener("mousemove", mouseMove, false);
             document.removeEventListener("keydown",  keyDown);
+            document.removeEventListener("mousedown", onMouseDown);
+            document.removeEventListener("mouseup", onMouseUp);
+            reset();
         }
     }
+
+    const reset = () => {
+        currentKeys = {};
+        mouseState = false;
+    }
+
+
+    let mouseState = false;
+    const onMouseDown = (event) => {
+        if (event.button === 0) {
+            mouseState = true;
+        }
+    }
+
+    const onMouseUp = (event) => {
+        if (event.button === 0) {
+            mouseState = false;
+        }
+    }
+
 
     let keysRegistered = null;
     let keysDelay = 1/30;
@@ -97,10 +122,14 @@ const getFPSController = (position = [0, 0, 0], look = [0, 0, 0], speed = 1, sen
         return look.map(d => deg2rad(d));
     }
 
+    const getMouseClick = () => {
+        return mouseState;
+    }
+
     window.getRotation = () => look;
     window.getPosition = () => pos;
 
-    return {getPosition, getRotation};
+    return {getPosition, getRotation, getMouseClick};
 }
 
 

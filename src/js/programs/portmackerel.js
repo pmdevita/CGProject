@@ -42,7 +42,7 @@ const baseUniforms = {
     // projectionMatrix: getOrthoProjectionMatrix(1, 1, 1,10)
 };
 
-const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], scale = null, rotation = [0, 0, 0]) => {
+const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], scale = null, rotation = [0, 0, 0], currentColor) => {
     let extents = computeModelExtent(model);
     let modelMatrix = getModelMatrix(model, position, rotation, scale ? scale : 1);
     const uniforms = {
@@ -53,6 +53,7 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
         K_s: .1,
         cameraVector: v3.normalize(rotationToVector(cameraRotation)),
         cameraPosition: cameraPosition,
+        currentColor,
         cubemap: skybox,
         lightPosition: [...lightPosition, 0]
     };
@@ -72,7 +73,7 @@ const getSceneUniforms = (cameraPosition, cameraRotation, position = [0, 0, 0], 
 let renderSkybox;
 
 // const nicediagposition = [23, 32, 32.6];
-const {getPosition, getRotation} = getFPSController([ -4.6454324467653825, 10.4, -33.33269986411267 ],
+const {getPosition, getRotation, getMouseClick} = getFPSController([ -4.6454324467653825, 10.4, -33.33269986411267 ],
     [ -25.9, 194.5, 0 ], 0.1, 0.3);
 
 let buffer;
@@ -89,7 +90,7 @@ let x = 150;
 const animateRaycast = () => {
     renderSkybox(getRotation());
 
-    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1);
+    let getUniforms = getSceneUniforms(getPosition(), getRotation(), [0, 0, 0], 1, [0,0,0], inkColors[2]);
     const renderBuffers = (buffers) => (program, extraUniforms) => {
         buffers.forEach((b, i) => {
             let uniforms = getUniforms(model[i].modelMatrix, model[i].texture, model[i].inkTexture.copy, extraUniforms);
@@ -99,13 +100,15 @@ const animateRaycast = () => {
         })
     }
 
-    // Call only when you want to draw
-    buffer.forEach((b, i) => {
-        drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), inkColors[2], true);
-    });
+    if (getMouseClick()) {
+        // Call only when you want to draw
+        buffer.forEach((b, i) => {
+            drawOnTexture(model[i].inkTexture, drawingProgram, renderBuffers([b]), inkColors[2]);
+        });
+    }
 
-    // about once every 5 seconds
-    if (x === 0) {
+    // Calculate total coverage
+    if (false) {
         // Call to update totalCoverage
         let objectCoverage = model.map(o => {
             return sumInk(o.inkTexture, inkColors);
@@ -188,8 +191,8 @@ const setup = async () => {
     model = await loadModelFromURL("./gltf/portmackerel.glb");
     model.forEach(o => {
         // o.texture.width, o.texture.height
-        // o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
-        o.inkTexture = createDrawableTexture(500, 500);
+        o.inkTexture = createDrawableTexture(gl.MAX_TEXTURE_SIZE, gl.MAX_TEXTURE_SIZE);
+        // o.inkTexture = createDrawableTexture(500, 500);
         makeTextureInkSummable(o.inkTexture);
     })
     bulb = await loadModelFromURL("./gltf/Lamp.glb");
